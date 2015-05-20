@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd 
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd 
+    http://www.springframework.org/schema/tx  http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
+    <!-- Spring 文件上传 组件-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
+    
+    <context:property-placeholder location="classpath:goeugo.properties" ignore-unresolvable="true"/>
+    <context:property-placeholder location="classpath:config.properties" ignore-unresolvable="true"/>
+    <context:property-placeholder location="classpath:damei.properties" ignore-unresolvable="true"/>
+    <context:property-placeholder location="classpath:gta.properties" ignore-unresolvable="true"/>
+    
+    <bean id="exchangeRateUtil" class="com.tuniu.ds.cowboy.utils.ExchangeRateUtil">
+        <property name="goeugoConfig" ref="goeugoConfig"/>
+    </bean>
+    
+    <!-- @Service,@Repository -->
+    <context:component-scan base-package="com.tuniu.ds.cowboy.**.impl;com.tuniu.ds.cowboy.common.**;
+        com.tuniu.ds.cowboy.common.business;com.tuniu.ds.cowboy.vendor.lixing.common;com.tuniu.ds.cowboy.vendor.damei.**;
+        com.tuniu.ds.cowboy.vendor.viator.**;com.tuniu.ds.cowboy.vendor.omega.**;com.tuniu.ds.cowboy.vendor.**.convert"></context:component-scan>
+   
+    <bean id="iSupportorForCFMServiceOriginal" class="com.tuniu.ds.cowboy.vendor.service.impl.ISupportorForCFMServiceImpl">  
+      <property name="serviceMap">
+       <map>  
+         <entry key="s${vendor.id.lixing}" value-ref="lixingService" />
+         <entry key="s${vendor.id.goeugo}" value-ref="goeugoService3" />
+         <entry key="s${vendor.id.viator}" value-ref="viatorOrderService" />
+         <entry key="s${vendor.id.damei}" value-ref="dameiService" />
+         <entry key="s${vendor.id.omega}" value-ref="omegaService" />
+         <entry key="s${vendor.id.gta}" value-ref="gtaOrderService" />
+         <entry key="s${vendor.id.lulutrip}" value-ref="lulutripService" />
+       </map>  
+      </property>
+    </bean>
+    
+    <bean id="iSupportorForCFMServiceProxy" class="com.tuniu.ds.cowboy.vendor.service.impl.ISupportForCFMServiceImplProxy" />
+    <bean id="iSupportorForCFMService" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="interceptorNames">
+            <list>
+                <value>iSupportorForCFMServiceProxy</value>
+            </list>
+        </property>
+        <property name="target">
+            <ref bean="iSupportorForCFMServiceOriginal"/>
+        </property>
+    </bean>
+  
+    <!-- 获取图片 -->
+    <bean id="pictureClient" class="com.tuniu.ds.cowboy.common.client.PictureClient">
+        <property name="cdn_url" value="http://m.tuniucdn.com"/>
+        <property name="tuniu_potsphotosearch_api" value="${tuniu.potsphotosearch.api}"/>
+        <property name="itinerary_pic_width" value="320"/>
+        <property name="itinerary_pic_height" value="240"/>
+        <property name="productlist_pic_width" value="200"/>
+        <property name="productlist_pic_height" value="113"/>
+        <property name="gallery_pic_width" value="500"/>
+        <property name="gallery_pic_height" value="280"/>
+        <property name="gallery_pic_max_num" value="4"/>
+        <property name="tuniu_default_pic" value="http://img3.tuniucdn.com/site/images/index/logo_v4.gif"/>
+    </bean>
+    
+    <!-- 获取图片 -->
+    <bean id="goeugoServiceUtil" class="com.tuniu.ds.cowboy.vendor.goeugo.util.GoeugoServiceUtil">
+        <property name="pictureClient" ref="pictureClient"/>
+    </bean>
+     <!-- 加价规则工厂类 -->
+    <bean id="priceFactory" class="com.tuniu.ds.cowboy.utils.ngboss.addprice.PriceAddRuleFactory">
+    </bean>
+    <bean id="goeugoDataConvertUtil" class="com.tuniu.ds.cowboy.vendor.goeugo.v2.util.GoeugoDataConvertUtil">
+        <property name="goeugoConfig" ref="goeugoConfig"/>
+        <property name="env" ref="env"/>
+    </bean>
+    <bean 
+        class="com.tuniu.ds.cowboy.vendor.goeugo.util.GoeugoDateUtil">
+        <property name="env" ref="env"/>
+    </bean>
+    <bean id="goeugoUpdateJob"
+        class="com.tuniu.ds.cowboy.vendor.goeugo.v2.service.impl.GoeugoUpdateJobImpl">
+        <constructor-arg name="goeugoConfig" ref="goeugoConfig"/>
+    </bean>
+    
+    <!-- <bean id="handlePoiSpotScript" class="com.tuniu.ds.cowboy.vendor.lixing.HandlePoiSpotScript">
+    </bean> -->
+    
+    <bean id="goeugoConfig" class="com.tuniu.ds.cowboy.vendor.goeugo.service.GoeugoConfig">
+        <property name="goeugoApiUrl" value="${cowboy.goeugoApiUrl}" />
+        <property name="goeugoConfirmOneDayBookingUrl" value="${cowboy.goeugoConfirmOneDayBookingUrl}" />
+        <property name="goeugoConfirmBookingUrl" value="${cowboy.goeugoConfirmBookingUrl}" />
+        <property name="goeugoCancelOneDayBookingUrl" value="${cowboy.goeugoCancelOneDayBookingUrl}" />
+        <property name="goeugoCancelBookingUrl" value="${cowboy.goeugoCancelBookingUrl}" />
+        <property name="goeugoInquiryOneDayCheckSeatUrl" value="${cowboy.goeugoInquiryOneDayCheckSeatUrl}" />
+        <property name="goeugoInquiryCheckSeatUrl" value="${cowboy.goeugoInquiryCheckSeatUrl}" />
+        <property name="goeugoChangeOneDayBookingUrl" value="${cowboy.goeugoChangeOneDayBookingUrl}" />
+        <property name="goeugoChangeBookingUrl" value="${cowboy.goeugoChangeBookingUrl}" />
+        <property name="defaultEmail" value="${cowboy.goeugoDefaultEmail}" />
+        <property name="exchangeRateUrl" value="${cowboy.exchangeRateUrl}" />
+        <property name="releaseDay" value="${cowboy.goeugo.releaseDay}" />
+        <property name="appkey" value="${cowboy.appkey}" />
+        <property name="appsecret" value="${cowboy.appsecret}" />
+        <property name="goeugoPriceUrl" value="${cowboy.goeugoPriceUrl}" />
+    </bean>
+    
+    <bean id="goeugoService" class="com.tuniu.ds.cowboy.vendor.goeugo.service.impl.GoeugoServiceImpl">
+        <property name="goeugoConfig" ref="goeugoConfig"/>
+    </bean>
+    <bean id="goeugoPersistService" class="com.tuniu.ds.cowboy.vendor.goeugo.v2.service.impl.GoeugoPersistServiceImpl">
+        <property name="goeugoConfig" ref="goeugoConfig"/>
+    </bean>
+    <bean id="goeugoService2" class="com.tuniu.ds.cowboy.vendor.goeugo.v2.service.impl.GoeugoSupportorForCFMServiceImpl"/>
+    <bean id="goeugoService3" class="com.tuniu.ds.cowboy.vendor.goeugo.v3.service.impl.GoeugoSupportorForCFMServiceImpl"/>
+    
+    <bean id="dameiConfig" class="com.tuniu.ds.cowboy.vendor.damei.common.DameiConfig">
+      <property name="username" value="${damei.username}" />
+      <property name="password" value="${damei.password}" />
+      <property name="notifyUrl" value="${damei.notifyUrl}" />
+      <property name="defaultEmail" value="${damei.defaultEmail}" />
+      <property name="defaultPhone" value="${damei.defaultPhone}" />
+      <property name="deltaPrice" value="${damei.deltaPrice}" />
+      <property name="bookUrl" value="${damei.bookUrl}" />
+    </bean>
+    
+    <bean id="dameiBookHelper" class="com.tuniu.ds.cowboy.vendor.damei.common.DameiBookHelper" />
+    
+    <!-- generate unique id, begin -->
+    <bean id="uniqueIdsDao" class="com.tuniu.ds.cowboy.utils.UniqueIdManager.UniqueIdsDao"/>
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	    <property name="staticMethod" value="com.tuniu.ds.cowboy.utils.UniqueIdManager.setUidDao"/>
+	    <property name="arguments">
+	        <list>
+	            <ref bean="uniqueIdsDao"/>
+	        </list>
+	   </property>
+	</bean>
+	<!-- generate unique id, end -->
+    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">  
+        <property name="exceptionMappings">  
+            <props>  
+                <prop key="java.lang.Throwable">error/exception</prop>
+            </props>  
+        </property>  
+    </bean>
+</beans>

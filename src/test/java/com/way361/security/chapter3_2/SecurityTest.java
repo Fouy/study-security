@@ -224,22 +224,4 @@ public class SecurityTest {
 		System.out.println(key);
 	}
 	
-	
-	
-	
-	
-	
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

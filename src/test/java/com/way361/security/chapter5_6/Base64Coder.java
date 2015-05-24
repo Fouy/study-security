@@ -10,7 +10,7 @@ import org.bouncycastle.util.encoders.Base64;
 public abstract class Base64Coder {
 	
 	public static final String ENCODING = "UTF-8";
-	
+	 
 	/**
 	 * Base64编码
 	 * @param data 待编码数据

@@ -24,6 +24,6 @@ public class Base64CoderTest {
 		System.out.println("解码后：\t" + outputStr);
 		assertEquals(inputStr, outputStr);
 	}
-	
+	 
 	
 }

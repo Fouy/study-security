@@ -3,14 +3,14 @@ package com.way361.security.chapter7_7;
 import java.security.Key;
 
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 
 /**
- * 7-12 AES算法实现
+ * 7-13 摘要/验证
  * @author xuefeihu
  *
  */
@@ -19,33 +19,7 @@ public abstract class AESCoder {
 	/**
 	 * 秘钥算法
 	 */
-	public static final String KEY_ALGORITHM = "AES";
-	
-	/**
-	 * 加密/解密算法 / 工作模式 / 填充方式
-	 * java6支持PKCS5Padding填充方式
-	 * Bouncy Castle支持PKCS7Padding填充方式
-	 */
-	public static final String CIPHER_ALGORITHM = "AES/ECB/PKCS5Padding";
-	
-	/**
-	 * 初始化秘钥
-	 * @return
-	 * @throws Exception
-	 */
-	public static String initKeyString() throws Exception {
-		return Base64.encodeBase64String(initKey());
-	}
-	
-	/**
-	 * 获取秘钥
-	 * @param key 秘钥
-	 * @return byte[] 秘钥
-	 * @throws Exception
-	 */
-	public static byte[] getKey(String key) throws Exception {
-		return Base64.decodeBase64(key);
-	}
+	public static final String ALGORITHM = "AES";
 	
 	/**
 	 * 转换秘钥
@@ -54,7 +28,7 @@ public abstract class AESCoder {
 	 * @throws Exception
 	 */
 	private static Key toKey(byte[] key) throws Exception {
-		SecretKey secretKey = new SecretKeySpec(key, KEY_ALGORITHM);
+		SecretKey secretKey = new SecretKeySpec(key, ALGORITHM);
 		return secretKey;
 	}
 	
@@ -78,7 +52,7 @@ public abstract class AESCoder {
 	 */
 	public static byte[] decrypt(byte[] data, byte[] key) throws Exception {
 		Key k = toKey(key);
-		Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
+		Cipher cipher = Cipher.getInstance(ALGORITHM);
 		cipher.init(Cipher.DECRYPT_MODE, k);
 		return cipher.doFinal(data);
 	}
@@ -103,21 +77,38 @@ public abstract class AESCoder {
 	 */
 	public static byte[] encrypt(byte[] data, byte[] key) throws Exception {
 		Key k = toKey(key);
-		Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
+		Cipher cipher = Cipher.getInstance(ALGORITHM);
 		cipher.init(Cipher.ENCRYPT_MODE, k);
 		return cipher.doFinal(data);
 	}
 	
 	/**
-	 * 生成秘钥
-	 * @return 二进制秘钥
+	 * 获取秘钥
+	 * @param key 秘钥
+	 * @return byte[] 秘钥
 	 * @throws Exception
 	 */
-	public static byte[] initKey() throws Exception {
-		KeyGenerator kg = KeyGenerator.getInstance(KEY_ALGORITHM);
-		kg.init(256);
-		SecretKey secretKey = kg.generateKey();
-		return secretKey.getEncoded();
+	public static byte[] getKey(String key) throws Exception {
+		return Base64.decodeBase64(key);
+	}
+	
+	/**
+	 * 摘要处理
+	 * @param data 待摘要数据
+	 * @return String 摘要字符串
+	 */
+	public static String shaHex(byte[] data) {
+		return DigestUtils.md5Hex(data);
+	}
+	
+	/**
+	 * 验证
+	 * @param data 带摘要数据
+	 * @param messageDigest 摘要字符串
+	 * @return Boolean 验证结果
+	 */
+	public static boolean validate(byte[] data, String messageDigest) {
+		return messageDigest.equals(shaHex(data));
 	}
 	
 }

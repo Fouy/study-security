@@ -20,7 +20,7 @@ import java.util.Map;
  * @auther xuefeihu
  * @time 2015年5月30日
  * @version 1.0
- * @since 1.0
+ * @since 1.0 
  * @location NanJing China
  */
 public abstract class RSACoder {

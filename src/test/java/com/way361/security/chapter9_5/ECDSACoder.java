@@ -30,7 +30,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 public abstract class ECDSACoder {
 
 	/** 数字签名 密钥算法 */
-	private static final String KEY_ALGORITHM = "ECDSA";
+	private static final String KEY_ALGORITHM = "ECDSA"; 
 
 	/**
 	 * 数字签名 签名/验证算法<br>

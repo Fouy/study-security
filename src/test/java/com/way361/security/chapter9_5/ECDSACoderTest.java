@@ -14,7 +14,7 @@ import org.junit.Test;
  * @auther xuefeihu
  */
 public class ECDSACoderTest {
-
+ 
 	/** 公钥 */
 	private byte[] publicKey;
 

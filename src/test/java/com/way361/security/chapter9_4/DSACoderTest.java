@@ -20,7 +20,7 @@ import org.junit.Test;
 public class DSACoderTest {
 
 	/** 公钥 */
-	private byte[] publicKey;
+	private byte[] publicKey; 
 
 	/** 私钥 */
 	private byte[] privateKey;

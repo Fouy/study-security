@@ -17,7 +17,7 @@ import java.util.Map;
  * @since 1.0
  * @location NanJing China
  */
-public class RSACoderTest {
+public class RSACoderTest { 
 
 	/** 公钥 */
 	private byte[] publicKey;
